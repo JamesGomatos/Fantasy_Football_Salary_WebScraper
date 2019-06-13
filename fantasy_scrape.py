@@ -50,13 +50,16 @@ class WebScraper:
     def get_team_player_info(self):
         csv_file = open('fantasy_players.csv', 'w')
         csv_writer = csv.writer(csv_file,  lineterminator='\n')
-        csv_writer.writerow(['Name', 'Cap Hit'])
+        csv_writer.writerow(['Name', 'Position', 'Base Salary',  'Roster Bonus', 'Signing Bonus', 'Cap Hit'])
         for key, value in self.database.items():
             source = requests.get(value).text
             soup = BeautifulSoup(source, 'lxml')
             rows = soup.find_all('tr')
             for entry in rows:
+                #values = entry.find_all('td')
+                #print(values)
                 try: 
+                  
                     # parse the string
                     player_name = entry.find('td', class_='player')
                     player_name = player_name.a.text
@@ -64,12 +67,39 @@ class WebScraper:
                     player_name = player_name.split(" ")
                     player_name = player_name[0] + " " + player_name[1]
 
-                    # 
+                    # parse the player position 
+                    player_position = entry.find('td', class_='center small')
+                    player_position = player_position.span.text
+
+                    # parse the base salary
+                    base_salary = entry.find('td', class_='right xs-hide')
+                    base_salary = base_salary.span.text
+
+
+                    all_tds = entry.find_all('td', class_='right xs-hide')
+                   # wtf = all_tds.find('span',{'title':'Signing Bonus'})
+                    #print(wtf)
+                    #roster_bonus = 0
+                    #signing_bonus = 0
+                    for i in all_tds:
+                        austin = i.find('span', {'title':'Roster Bonus'})
+                        jimmy = i.find('span', {'title': 'Signing Bonus'})
+                        if austin != None:
+                            roster_bonus = austin.text
+                        if jimmy != None:
+                            signing_bonus = jimmy.text
+                        #val = i.find('span', {'title':'Signing Bonus'})
+                       # if val != 0:
+                            #signing_bonus = val.text
+                    
+                    # parse the player cap hit 
                     player_cap = entry.find('td', class_='right result')
                     player_cap = player_cap.span.text
-                    print(player_name, player_cap)
-                    csv_writer.writerow([player_name, player_cap])
+
+                    print(player_name, player_position, base_salary, roster_bonus, signing_bonus,  player_cap)
+                    csv_writer.writerow([player_name, player_position, base_salary, roster_bonus, signing_bonus, player_cap])
                 except:
+                    print("error")
                     continue
         print("Completed :)")
         csv_file.close()
