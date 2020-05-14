@@ -69,11 +69,10 @@ class WebScraper:
                     player_position = entry.find('td', class_='center small')
                     player_position = player_position.span.text
 
-
+                
                     # parse the base salary
-                    base_salary = entry.find('td', class_='right xs-hide')
+                    base_salary = entry.find('td', class_='right result xs-hide')
                     base_salary = base_salary.span.text
-
                     
                     all_tds = entry.find_all('td', class_='right')
                     for i in all_tds:
@@ -99,35 +98,30 @@ class WebScraper:
                         if column6 != None:
                             incentive_bonus = column6.text
                   
-                    
-                   # print(roster_bonus, signing_bonus, option_bonus, workout_bonus, restructure_bonus, incentive_bonus)
-                    # parise the player dead cap 
-                    #player_dead_cap = entry.find_all('td')
+                                       
+
+                    # parse the player dead cap 
                     player_dead_cap = entry.find('input', class_='d').get('value')
-
-                   # print(player_dead_cap)
-                   # player_dead_cap = player_dead_cap.value
-                   # print(player_dead_cap)
-                    # player_dead_cap = player_dead_cap.span.a
-
+                    
                     # parse the player cap hit 
-                    player_cap = entry.find('td', class_='right result')
+                    player_cap = entry.find('td', class_='right result xs-hide')
                     player_cap = player_cap.span.text
-
-                    # parise the cap percentage 
-                    cap_percentage = entry.find('td', class_='center xs-hide')
+               
+                    # parse the cap percentage 
+                    cap_percentage = entry.find('td', class_='center')
                     cap_percentage = cap_percentage.text
 
+                    # print and write the row to the console
                     print(player_name, player_position, base_salary, roster_bonus, signing_bonus, option_bonus, workout_bonus, restructure_bonus, incentive_bonus, player_dead_cap,  player_cap, cap_percentage)
                     csv_writer.writerow([player_name, player_position, base_salary, roster_bonus, signing_bonus, option_bonus, workout_bonus, restructure_bonus, incentive_bonus, player_dead_cap,  player_cap, cap_percentage])
+                              
                 except:
                     print("error")
                     continue
         print("Completed :)")
         csv_file.close()
 
-
 sports = WebScraper('https://www.spotrac.com/nfl/')
 sports.get_all_team_info()
-#sports.print_db()
+# sports.print_db()
 sports.get_team_player_info()
